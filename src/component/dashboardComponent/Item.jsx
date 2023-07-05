@@ -1,14 +1,18 @@
-import Monster from "../../img/d3.png";
+import Monster from "../../Img/d3.png";
 import { BsFillPencilFill } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Item = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <tr className="border ">
       <td className="flex gap-5  p-4">
-        <button onClick={() => {navigate("/itemlists/ki38la89nj973n")}}>
+        <button
+          onClick={() => {
+            navigate("/itemlists/ki38la89nj973n");
+          }}
+        >
           <BsFillPencilFill className="text-lg" />
         </button>
         <button>
