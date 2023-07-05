@@ -1,22 +1,38 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import App from "../App";
-import { DashBoard, OrdersList ,ItemsList} from "../component";
+import {
+  DashBoard,
+  OrdersList,
+  ItemsList,
+  CreateContainer,
+} from "../component";
+import Error from "../component/UI/Error";
+import EditItem from "../component/dashboardComponent/EditItem";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <DashBoard/>,
+    element: <DashBoard />,
+    errorElement: <Error />,
     children: [
+      { index: true, element: "dashboard Charts" },
       {
         path: "/orders",
-        element: <OrdersList/>,
+        element: <OrdersList />,
       },
       {
         path: "/itemLists",
-        element: <ItemsList/>
-      }
-
-     
+        element: <ItemsList />,
+      },
+      {
+        path: "/itemLists/:id",
+        element: <EditItem />,
+      },
+      { path: "/users", element: "users" },
+      {
+        path: "/add-newitems",
+        element: <CreateContainer />,
+      },
     ],
   },
 ]);

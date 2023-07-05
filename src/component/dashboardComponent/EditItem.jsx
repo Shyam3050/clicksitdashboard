@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   MdAttachMoney,
@@ -7,18 +7,9 @@ import {
   MdFastfood,
   MdFoodBank,
 } from "react-icons/md";
-import { categories } from "../utils/data";
-import {
-  deleteObject,
-  getDownloadURL,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { storage } from "../firebase.config";
-import { saveItem } from "../utils/firebaseFunctions";
-import Loader from "./UI/Loader";
 
-const CreateContainer = () => {
+const EditItem = () => {
+    const categories = []
   const [title, setTitle] = useState("");
   const [unit, setunit] = useState("");
   const [unitValue, setUnitvalue] = useState("");
@@ -29,108 +20,6 @@ const CreateContainer = () => {
   const [alertStatus, setAlertStatus] = useState("danger");
   const [msg, setMsg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const uploadImage = (e) => {
-    setIsLoading(true);
-    const imgFile = e.target.files[0];
-    const storageRef = ref(storage, `images/${Date.now()}-${imgFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, imgFile);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const uploadProgress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(uploadProgress);
-      },
-      () => {
-        setFields(true);
-        setMsg("Error while uploading : Try AGain 🙇");
-        setAlertStatus("danger");
-        setTimeout(() => {
-          setFields(false);
-          setIsLoading(false);
-        }, 4000);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageAsset(downloadURL);
-          setIsLoading(false);
-          setFields(true);
-          setMsg("Image uploaded successfully 😊");
-          setAlertStatus("success");
-          setTimeout(() => {
-            setFields(false);
-          }, 4000);
-        });
-      }
-    );
-  };
-  const deleteImage = () => {
-    setIsLoading(true);
-    const deleteRef = ref(storage, imageAsset);
-    deleteObject(deleteRef).then(() => {
-      setImageAsset(null);
-      setIsLoading(false);
-      setFields(true);
-      setMsg("Image deleted successfully 😊");
-      setAlertStatus("success");
-      setTimeout(() => {
-        setFields(false);
-      }, 4000);
-    });
-  };
-  const saveDetails = () => {
-    setIsLoading(true);
-    try {
-      if (!title || !unitValue || !unit || !imageAsset || !price || !category) {
-        setFields(true);
-        setMsg("Required fields can't be empty🙇");
-        setAlertStatus("danger");
-        setTimeout(() => {
-          setFields(false);
-          setIsLoading(false);
-        }, 1000);
-      } else {
-        const data = {
-          id: `${Date.now()}`,
-          title: title,
-          imageURL: imageAsset,
-          category: category,
-          unit,
-          unitValue,
-          qty: 1,
-          price: price,
-        };
-        saveItem(data);
-        setIsLoading(false);
-        setFields(true);
-        setMsg("Data Uploaded successfully 😊");
-        setAlertStatus("success");
-        setTimeout(() => {
-          setFields(false);
-        }, 2000);
-        clearData();
-      }
-    } catch (error) {
-      console.log(error);
-      setFields(true);
-      setMsg("Error while uploading : Try AGain 🙇");
-      setAlertStatus("danger");
-      setTimeout(() => {
-        setFields(false);
-        setIsLoading(false);
-      }, 4000);
-    }
-  };
-
-  const clearData = () => {
-    setTitle("");
-    setImageAsset(null);
-    setunit("");
-    setUnitvalue("");
-    setPrice("");
-    setCategory("");
-  };
   return (
     <div className="w-full min-h-screen flex items-center justify-center ">
       <div className="w-[90%] md:w-[50%] border border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
@@ -180,7 +69,7 @@ const CreateContainer = () => {
         </div>
         <div className="group flex justify-center items-center flex-col border-2 border-dotted border-gray-300 w-full h-225 md:h-340 cursor-pointer rounded-lg">
           {isLoading ? (
-            <Loader />
+            <h2>Loading....</h2>
           ) : (
             <>
               {!imageAsset ? (
@@ -197,7 +86,6 @@ const CreateContainer = () => {
                       accept="image/*"
                       name="uploadimage"
                       className="w-0 h-0"
-                      onChange={uploadImage}
                     />
                   </label>
                 </>
@@ -212,7 +100,6 @@ const CreateContainer = () => {
                     <button
                       type="button"
                       className="absolute bottom-3 right-3 p-3 rounded-full bg-red-500 text-xl cursor-pointer outline-none hover:shadow-md  duration-500 transition-all ease-in-out"
-                      onClick={deleteImage}
                     >
                       <MdDelete className="text-white" />
                     </button>
@@ -260,7 +147,6 @@ const CreateContainer = () => {
           <motion.button
             type="button"
             className={` ml-0 md:ml-auto w-full md:w-auto border-none outline-none bg-emerald-500 px-12 py-2 rounded-lg text-lg text-white font-semibold `}
-            onClick={saveDetails}
             whileTap={{ scale: 0.75 }}
           >
             Save
@@ -271,4 +157,4 @@ const CreateContainer = () => {
   );
 };
 
-export default CreateContainer;
+export default EditItem;

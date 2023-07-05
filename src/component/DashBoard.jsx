@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { AdminSidebar, AdminHeader, MainDashboard } from "../component";
+import { AdminSidebar, AdminHeader } from "../component";
 
 const DashBoard = () => {
   return (
