@@ -8,7 +8,6 @@ import {
   CreateContainer,
 } from "../component";
 import Error from "../component/UI/Error";
-import EditItem from "../component/dashboardComponent/EditItem";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -26,7 +25,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/itemLists/:id",
-        element: <EditItem />,
+        element:<CreateContainer />,
       },
       { path: "/users", element: "users" },
       {

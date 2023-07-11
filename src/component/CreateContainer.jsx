@@ -8,17 +8,16 @@ import {
   MdFoodBank,
 } from "react-icons/md";
 import { categories } from "../utils/data";
-import {
-  deleteObject,
-  getDownloadURL,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { storage } from "../firebase.config";
-import { saveItem } from "../utils/firebaseFunctions";
-import Loader from "./UI/Loader";
 
-const CreateContainer = () => {
+import Loader from "./UI/Loader";
+import {
+  clearData,
+  deleteFromFirebase,
+  saveToFirebase,
+  uploadImageToFirebase,
+} from "../utils/image_upload_edit";
+
+const CreateContainer = (props) => {
   const [title, setTitle] = useState("");
   const [unit, setunit] = useState("");
   const [unitValue, setUnitvalue] = useState("");
@@ -31,109 +30,61 @@ const CreateContainer = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadImage = (e) => {
-    setIsLoading(true);
-    const imgFile = e.target.files[0];
-    const storageRef = ref(storage, `images/${Date.now()}-${imgFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, imgFile);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const uploadProgress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(uploadProgress);
-      },
-      () => {
-        setFields(true);
-        setMsg("Error while uploading : Try AGain 🙇");
-        setAlertStatus("danger");
-        setTimeout(() => {
-          setFields(false);
-          setIsLoading(false);
-        }, 4000);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageAsset(downloadURL);
-          setIsLoading(false);
-          setFields(true);
-          setMsg("Image uploaded successfully 😊");
-          setAlertStatus("success");
-          setTimeout(() => {
-            setFields(false);
-          }, 4000);
-        });
-      }
-    );
+    uploadImageToFirebase({
+      e,
+      setIsLoading,
+      setFields,
+      setMsg,
+      setAlertStatus,
+      setImageAsset,
+    });
   };
+
   const deleteImage = () => {
-    setIsLoading(true);
-    const deleteRef = ref(storage, imageAsset);
-    deleteObject(deleteRef).then(() => {
-      setImageAsset(null);
-      setIsLoading(false);
-      setFields(true);
-      setMsg("Image deleted successfully 😊");
-      setAlertStatus("success");
-      setTimeout(() => {
-        setFields(false);
-      }, 4000);
+    deleteFromFirebase({
+      setIsLoading,
+      setImageAsset,
+      setFields,
+      setMsg,
+      setAlertStatus,
+      imageAsset,
     });
   };
   const saveDetails = () => {
-    setIsLoading(true);
-    try {
-      if (!title || !unitValue || !unit || !imageAsset || !price || !category) {
-        setFields(true);
-        setMsg("Required fields can't be empty🙇");
-        setAlertStatus("danger");
-        setTimeout(() => {
-          setFields(false);
-          setIsLoading(false);
-        }, 1000);
-      } else {
-        const data = {
-          id: `${Date.now()}`,
-          title: title,
-          imageURL: imageAsset,
-          category: category,
-          unit,
-          unitValue,
-          qty: 1,
-          price: price,
-        };
-        saveItem(data);
-        setIsLoading(false);
-        setFields(true);
-        setMsg("Data Uploaded successfully 😊");
-        setAlertStatus("success");
-        setTimeout(() => {
-          setFields(false);
-        }, 2000);
-        clearData();
-      }
-    } catch (error) {
-      console.log(error);
-      setFields(true);
-      setMsg("Error while uploading : Try AGain 🙇");
-      setAlertStatus("danger");
-      setTimeout(() => {
-        setFields(false);
-        setIsLoading(false);
-      }, 4000);
-    }
+    saveToFirebase({
+      setIsLoading,
+      setFields,
+      setMsg,
+      setAlertStatus,
+      setTitle,
+      setPrice,
+      setImageAsset,
+      setunit,
+      setUnitvalue,
+      setCategory,
+      title,
+      unitValue,
+      unit,
+      imageAsset,
+      price,
+      category,
+    });
   };
 
-  const clearData = () => {
-    setTitle("");
-    setImageAsset(null);
-    setunit("");
-    setUnitvalue("");
-    setPrice("");
-    setCategory("");
+  const clearinpData = () => {
+    clearData({
+      setTitle,
+      setPrice,
+      setImageAsset,
+      setunit,
+      setUnitvalue,
+      setCategory,
+    });
   };
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center ">
-      <div className="w-[90%] md:w-[50%] border border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
+      <div className="w-[90%] md:w-[60%] border border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center gap-4">
         {fields && (
           <motion.p
             initial={{ opacity: 0 }}
@@ -155,7 +106,7 @@ const CreateContainer = () => {
             required
             value={title}
             placeholder="Give me a title"
-            className="w-full h-full text-lg bg-transparent font-semibold text-textColor"
+            className="w-full h-full text-lg bg-transparent font-semibold text-textColor px-2"
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
@@ -256,7 +207,16 @@ const CreateContainer = () => {
             />
           </div>
         </div>
-        <div className="flex items-center w-full">
+        <div className="flex gap-5 flex-col md:flex-row w-full">
+          <motion.button
+            type="button"
+            className={` border border-gray-500 px-10  py-2 rounded-lg text-lg  font-semibold  outline-none`}
+            onClick={clearinpData}
+            whileTap={{ scale: 0.75 }}
+          >
+            Reset
+          </motion.button>
+
           <motion.button
             type="button"
             className={` ml-0 md:ml-auto w-full md:w-auto border-none outline-none bg-emerald-500 px-12 py-2 rounded-lg text-lg text-white font-semibold `}
